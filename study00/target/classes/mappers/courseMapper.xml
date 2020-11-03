@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="courseMapper">
+
+	<!-- 코스 글 작성 -->
+	<insert id="insert" parameterType="kr.co.vo.CourseVO" useGeneratedKeys="true" keyProperty="cno">
+	    <selectKey keyProperty="cno" resultType="int" order="BEFORE">
+	    	SELECT MP_COURSE_SEQ.NEXTVAL FROM DUAL
+	    </selectKey>
+	    INSERT INTO MP_COURSE(    CNO 
+	   					       , TITLE 
+	   					       , CONTENT 
+	   					       , WRITER
+	   					       , TEMA
+	   					       , SCHEDULE  )
+	                  VALUES(    #{cno}
+	                 		   , #{title}
+	                 		   , #{content}
+	                 		   , #{writer}
+	                 		   , #{tema}
+	                 		   , #{schedule}  )
+   
+    </insert>	
+
+	<!-- 코스 목록 전체 -->
+	<select id="listPage" resultType="kr.co.vo.CourseVO" parameterType="kr.co.vo.SearchCriteria">
+		SELECT  CNO,
+		        TITLE, 
+		        CONTENT,
+		        WRITER, 
+		        TEMA,
+		        SCHEDULE,
+		        LISTSEE,
+		        MAINSEE
+		 FROM ( 
+		        SELECT CNO, 
+					        TITLE, 
+					        CONTENT,
+					        WRITER, 
+					        TEMA,
+					        SCHEDULE,
+					        LISTSEE,
+					        MAINSEE,
+		               ROW_NUMBER() OVER(ORDER BY CNO DESC) AS RNUM
+		         FROM MP_COURSE
+		         WHERE 1=1 
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY CNO DESC
+	</select>
+	
+	<!-- MY 코스 -->
+	<select id="listMyPage" resultType="kr.co.vo.CourseVO" parameterType="kr.co.vo.SearchCriteria">
+		SELECT  CNO,
+		        TITLE, 
+		        CONTENT,
+		        WRITER, 
+		        TEMA,
+		        SCHEDULE,
+		        LISTSEE,
+		        MAINSEE
+		 FROM ( 
+		        SELECT CNO, 
+					        TITLE, 
+					        CONTENT,
+					        WRITER, 
+					        TEMA,
+					        SCHEDULE,
+					        LISTSEE,
+					        MAINSEE,
+		               ROW_NUMBER() OVER(ORDER BY CNO DESC) AS RNUM
+		         FROM MP_COURSE
+		         WHERE 1=1 AND WRITER = #{writer}
+		         	<include refid="search"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+
+		ORDER BY CNO DESC
+	</select>
+	
+
+	<!-- 게시물 총 갯수 -->
+	<select id="listCount" parameterType="kr.co.vo.SearchCriteria" resultType="int">
+		SELECT COUNT(CNO)
+		   FROM MP_COURSE
+		   WHERE 1=1
+		<include refid="search"></include>	
+		   AND CNO > 0
+	</select>
+
+	<!-- 내 코스 게시물 갯수 -->
+	<select id="myListCount" parameterType="kr.co.vo.SearchCriteria" resultType="int">
+		SELECT COUNT(CNO)
+		   FROM MP_COURSE
+		   WHERE 1=1
+		<include refid="search"></include>	
+		   AND WRITER = #{writer}
+	</select>	
+	
+	<!-- 검색 -->
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND WRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (TITLE LIKE '%' || #{keyword} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>	
+	
+	<!-- 코스 내용 조회 -->
+	<select id="read" parameterType="int" resultType="kr.co.vo.CourseVO">
+		SELECT   CNO
+			   , TITLE
+			   , CONTENT
+			   , WRITER
+			   , TEMA
+			   , SCHEDULE
+			   , LISTSEE
+			   , MAINSEE
+		  FROM MP_COURSE
+		 WHERE CNO = #{cno}
+	</select>
+	
+	<!-- 코스 내용 수정 -->
+	<update id="update" parameterType="kr.co.vo.CourseVO">
+		UPDATE MP_COURSE
+		   SET TITLE    =   #{title},
+		   	   CONTENT  =   #{content},
+		   	   WRITER = #{writer},
+		   	   TEMA = #{tema},
+		   	   SCHEDULE = #{schedule},
+		   	   LISTSEE = #{listsee},
+		   	   MAINSEE = #{mainsee}
+		 WHERE CNO = #{cno} 
+	</update>	
+	
+	<delete id = "delete" parameterType="kr.co.vo.CourseVO">
+		DELETE FROM MP_COURSE WHERE CNO = #{cno}
+	</delete>
+</mapper>

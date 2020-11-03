@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="placeMapper">
+	
+	<!-- 코스에 여행지 조회 -->
+	<select id="readPlace" resultType="kr.co.vo.PlaceVO">
+    	SELECT
+    		  CONTENTID,
+    		  ORDERS
+    	 FROM MP_PLACE
+    	WHERE CNO = #{cno}
+    	ORDER BY ORDERS ASC
+	</select>
+	
+	<!-- 코스에 여행지 저장 -->
+	<insert id="insertCourse">
+	INSERT INTO MP_PLACE(
+		CNO
+		, CONTENTID
+		, ORDERS
+	)
+	VALUES(    #{cno}
+		, #{contentId}
+		, MP_PLACE_SEQ.NEXTVAL)
+	</insert>	
+	
+	<!-- 코스에 여행지 수정 -->
+	<update id="updateCourse" parameterType="kr.co.vo.PlaceVO">
+		UPDATE MP_PLACE SET 
+		ORDERS = #{orders}
+		WHERE CNO = #{cno}
+		AND CONTENTID = #{contentId}
+	</update>
+	
+	<!-- 코스에 여행지 전부 삭제 -->
+	<delete id="deleteCourse" parameterType="kr.co.vo.PlaceVO">
+		DELETE FROM MP_PLACE WHERE CNO = #{cno}
+	</delete>
+	
+	<!-- 코스에 여행지 1개 삭제 -->
+	<delete id="deleteOneCourse" parameterType="kr.co.vo.PlaceVO">
+		DELETE FROM MP_PLACE WHERE CNO = #{cno} AND CONTENTID = #{contentId};
+	</delete>	
+</mapper>

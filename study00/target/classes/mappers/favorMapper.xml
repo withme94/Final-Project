@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="favorMapper">
+	
+	<!-- 즐겨찾기 등록 -->
+	<insert id="insert" parameterType="kr.co.vo.FavorVO">
+		INSERT INTO MP_FAVOR (KEYNUMBER, USERID, CONTENTID)
+			VALUES (#{keyNumber}, #{userId}, #{contentId})
+	</insert>
+	
+	<!-- 즐겨찾기 삭제 -->
+	<delete id="delete" parameterType="String">
+		DELETE FROM MP_FAVOR
+		WHERE KEYNUMBER = #{keyNumber}
+	</delete>
+	
+	<!-- 즐겨찾기 등록 확인 -->
+	<select id="select" resultType="kr.co.vo.FavorVO">
+		SELECT * FROM MP_FAVOR
+		WHERE KEYNUMBER = #{keyNumber}
+	</select>
+	
+	<!-- 즐겨찾기 리스트 -->
+	<select id="selectList" resultType="kr.co.vo.FavorVO">
+		SELECT CONTENTID FROM MP_FAVOR
+		WHERE USERID = #{userId}
+	</select>
+</mapper>
